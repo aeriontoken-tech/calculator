@@ -12,6 +12,7 @@
     "qa:content": "node scripts/content-safety.mjs"
   },
   "dependencies": {
+    "motion": "^12.42.1",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest"
@@ -26,6 +27,7 @@
     "eslint": "latest",
     "eslint-config-next": "latest",
     "jsdom": "latest",
+    "playwright": "^1.61.1",
     "typescript": "latest",
     "vitest": "latest"
   }
