@@ -15,6 +15,7 @@ export interface SliderNumberProps {
 export function SliderNumber({ label, value, min, max, step, unit, onChange }: SliderNumberProps) {
   const id = useId();
   const emit = (raw: string) => {
+    if (raw.trim() === '') return;
     const n = Number(raw);
     if (Number.isFinite(n)) onChange(n);
   };

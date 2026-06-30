@@ -37,7 +37,7 @@ export function PresetSelect<T extends string | number>({ label, value, options,
         }}
       >
         {options.map((o) => (
-          <option key={String(o.value)} value={String(o.value)} style={{ color: '#000' }}>
+          <option key={String(o.value)} value={String(o.value)} style={{ color: 'var(--obsidian)' }}>
             {o.label}
           </option>
         ))}
