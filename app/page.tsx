@@ -1,11 +1,9 @@
 import Link from 'next/link';
-import { RiskBanner } from '@/components/compliance/RiskBanner';
 import { MicaStatement } from '@/components/compliance/MicaStatement';
 
 export default function Home() {
   return (
     <main className="page">
-      <RiskBanner />
       <p className="section-label">Aerion · Scenario Calculator</p>
       <h1 style={{ fontSize: 52, margin: '12px 0 16px' }}>
         Model the economics, not a promise<span className="dot">.</span>

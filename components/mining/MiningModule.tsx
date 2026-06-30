@@ -95,7 +95,7 @@ export function MiningModule({ parameters }: { parameters: MiningParameters }) {
       <p className="section-label">Scenario range</p>
       <ScenarioBand band={band} />
       <p className="meta" style={{ marginTop: 'var(--space)' }}>
-        Documented Monte-Carlo miner payback: P10 {band.paybackPercentiles.p10.toFixed(2)} yr · P50{' '}
+        Documented Monte-Carlo miner payback — computed under the documented simulation assumptions, which differ from the inputs above: P10 {band.paybackPercentiles.p10.toFixed(2)} yr · P50{' '}
         {band.paybackPercentiles.p50.toFixed(2)} yr · P90 {band.paybackPercentiles.p90.toFixed(2)} yr.
       </p>
 
