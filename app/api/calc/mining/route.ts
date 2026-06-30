@@ -5,6 +5,9 @@ import {
   DEFAULT_MINING_PARAMETERS,
   type MinerInputs,
   type SiteInputs,
+  type MinerResult,
+  type ScenarioBand,
+  type SiteResult,
 } from '@/packages/calc-engine';
 
 const MINER_KEYS: (keyof MinerInputs)[] = [
@@ -56,7 +59,7 @@ export async function POST(request: Request): Promise<Response> {
   if (!miner) return Response.json({ error: 'invalid miner inputs' }, { status: 400 });
 
   const params = DEFAULT_MINING_PARAMETERS;
-  const result: Record<string, unknown> = {
+  const response: { miner: MinerResult; band: ScenarioBand; asOf: string; site?: SiteResult } = {
     miner: computeMinerEconomics(miner, params.hashprice),
     band: runMiningScenarioBand(miner, params),
     asOf: params.asOf,
@@ -65,8 +68,8 @@ export async function POST(request: Request): Promise<Response> {
   if (body.site !== undefined) {
     const site = parseSite(body.site, miner);
     if (!site) return Response.json({ error: 'invalid site inputs' }, { status: 400 });
-    result.site = computeSiteEconomics(site, params.hashprice);
+    response.site = computeSiteEconomics(site, params.hashprice);
   }
 
-  return Response.json(result, { status: 200 });
+  return Response.json(response, { status: 200 });
 }
