@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useId } from 'react';
 import { motion, useSpring, useTransform } from 'motion/react';
 
 /* Animated number that springs to its target and formats live. */
@@ -112,6 +112,7 @@ export function Segmented<T extends string>({
   options: { value: T; label: string }[];
   onChange: (v: T) => void;
 }) {
+  const lid = useId();
   return (
     <div className="seg" role="tablist">
       {options.map((o) => {
@@ -120,7 +121,7 @@ export function Segmented<T extends string>({
           <button key={o.value} role="tab" aria-selected={on} data-on={on} onClick={() => onChange(o.value)}>
             {on && (
               <motion.span
-                layoutId="seg-pill"
+                layoutId={`seg-${lid}`}
                 style={{
                   position: 'absolute',
                   inset: 0,

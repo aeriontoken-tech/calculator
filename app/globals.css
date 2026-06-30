@@ -408,9 +408,96 @@ input[type='range'].rng::-moz-range-thumb {
   background: var(--paper-3);
 }
 
-@media (max-width: 720px) {
+.chip {
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+  transition: all 0.2s;
+}
+.chip:hover {
+  border-color: var(--sage);
+  color: var(--deep-sage);
+}
+.chip[data-on='true'] {
+  background: var(--deep-sage);
+  color: var(--paper-3);
+  border-color: transparent;
+}
+
+.value-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: rgba(139, 227, 160, 0.08);
+}
+
+.tier-chip {
+  display: grid;
+  gap: 2px;
+  justify-items: end;
+  padding: 9px 16px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--paper-3);
+}
+
+.license-chip {
+  display: grid;
+  gap: 5px;
+  padding: 13px 15px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: rgba(249, 246, 239, 0.5);
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  transition: border-color 0.25s, background 0.25s, transform 0.2s, box-shadow 0.25s;
+}
+.license-chip:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-soft);
+}
+.license-chip[data-on='true'] {
+  border-color: var(--sage);
+  background: var(--paper-3);
+  box-shadow: var(--shadow-soft);
+}
+
+/* hover depth on glass surfaces (shadow only — transforms belong to motion) */
+.glass {
+  transition: box-shadow 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.glass:hover {
+  box-shadow: var(--shadow-lift);
+}
+
+/* flowing energy lines */
+@keyframes flow {
+  from { stroke-dashoffset: 243; }
+  to { stroke-dashoffset: 0; }
+}
+.flow {
+  animation: flow 9s linear infinite;
+}
+
+@media (max-width: 760px) {
   .invest-grid {
     grid-template-columns: 1fr !important;
+  }
+  .studio-nav-extra {
+    display: none !important;
+  }
+  body {
+    font-size: 14px;
   }
 }
 

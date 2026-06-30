@@ -57,10 +57,10 @@ export function StudioHeader() {
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span className="label" style={{ display: 'flex', alignItems: 'center', gap: 7, marginRight: 6 }}>
+          <span className="label studio-nav-extra" style={{ display: 'flex', alignItems: 'center', gap: 7, marginRight: 6 }}>
             <span className="live-dot" /> Simulation Studio
           </span>
-          <a className="pill" href="/methodology" style={{ textDecoration: 'none' }}>
+          <a className="pill studio-nav-extra" href="/methodology" style={{ textDecoration: 'none' }}>
             Methodology
           </a>
           <button className="pill pill-accent">Request access</button>
