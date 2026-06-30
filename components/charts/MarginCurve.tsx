@@ -20,7 +20,7 @@ export function MarginCurve({ inputs, hashprice, energyMin, energyMax, steps = 4
   const ms = points.map((p) => p.m);
   const minM = Math.min(...ms, 0);
   const maxM = Math.max(...ms, 0);
-  const x = (e: number) => pad + ((e - energyMin) / (energyMax - energyMin)) * (width - 2 * pad);
+  const x = (e: number) => pad + ((e - energyMin) / (energyMax - energyMin || 1)) * (width - 2 * pad);
   const y = (m: number) => height - pad - ((m - minM) / (maxM - minM || 1)) * (height - 2 * pad);
   const poly = points.map((p) => `${x(p.e).toFixed(1)},${y(p.m).toFixed(1)}`).join(' ');
   const zeroY = y(0);

@@ -24,7 +24,7 @@ export function ScenarioBand({ band }: { band: ScenarioBandData }) {
           return (
             <tr key={r.key} style={{ borderTop: '1px solid var(--rule)' }}>
               <td style={{ padding: '8px 0', color: isBase ? 'var(--cream)' : 'var(--muted-cream)' }}>
-                {isBase ? <span className="dot">●</span> : null} {r.label}
+                {isBase ? <span className="dot" style={{ color: 'var(--mint)' }}>●</span> : null} {r.label}
               </td>
               <td style={{ padding: '8px 0' }}>{formatEur2(res.marginDay)}</td>
               <td style={{ padding: '8px 0' }}>{formatYears(res.paybackYears)}</td>
