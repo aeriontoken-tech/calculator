@@ -28,7 +28,10 @@ export function computeForwardEconomics(inputs: MinerInputs, hashprice0: number,
     const hp = hashprice0 * Math.pow(1 + a.hashpriceMonthlyChangePct, m);
     const revenueDay = (inputs.hashrateTH / 1000) * hp * inputs.uptime * (1 - inputs.poolFee);
     const marginDay = revenueDay - energyCostDay - inputs.omPerDay;
-    const monthMargin = marginDay * days;
+    // A rational operator — and Aerion's AI Operator specifically — idles the
+    // miner when the daily spread turns negative, rather than mining at a loss.
+    // Idle months therefore contribute nothing (they never subtract).
+    const monthMargin = Math.max(0, marginDay) * days;
     cumulative += monthMargin;
     npv += monthMargin / Math.pow(1 + rMonthly, m + 1);
     if (paybackMonths === null && cumulative >= 0) paybackMonths = m + 1;
