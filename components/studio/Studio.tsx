@@ -4,7 +4,15 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { DEFAULT_MINING_PARAMETERS, type ForwardAssumptions } from '@/packages/calc-engine';
 import { presetByKey, type MiningPreset } from '@/lib/presets';
-import { computeModule, computePortfolio, type ModuleConfig } from '@/lib/studio';
+import {
+  computeModule,
+  computePortfolio,
+  DEFAULT_ACCESS,
+  DEFAULT_INVESTMENT,
+  type AccessState,
+  type InvestmentState,
+  type ModuleConfig,
+} from '@/lib/studio';
 import { SummaryHero } from './SummaryHero';
 import { ModuleCard } from './ModuleCard';
 import { InvestmentPanel } from './InvestmentPanel';
@@ -29,17 +37,23 @@ function configFromPreset(p: MiningPreset, id: string): ModuleConfig {
   };
 }
 
-function encode(modules: ModuleConfig[]): string {
+interface Snapshot {
+  m: ModuleConfig[];
+  k: ForwardAssumptions;
+  i: InvestmentState;
+  a: AccessState;
+}
+function encode(s: Snapshot): string {
   try {
-    return btoa(encodeURIComponent(JSON.stringify(modules)));
+    return btoa(encodeURIComponent(JSON.stringify(s)));
   } catch {
     return '';
   }
 }
-function decode(s: string): ModuleConfig[] | null {
+function decodeSnapshot(str: string): Partial<Snapshot> | null {
   try {
-    const arr = JSON.parse(decodeURIComponent(atob(s)));
-    if (Array.isArray(arr) && arr.every((m) => m && typeof m.id === 'string')) return arr as ModuleConfig[];
+    const o = JSON.parse(decodeURIComponent(atob(str)));
+    if (o && typeof o === 'object') return o as Partial<Snapshot>;
   } catch {
     /* ignore */
   }
@@ -66,31 +80,39 @@ export function Studio() {
     hashpriceMonthlyChangePct: -0.01,
     discountAnnualPct: 0.12,
   });
+  const [investment, setInvestment] = useState<InvestmentState>(DEFAULT_INVESTMENT);
+  const [access, setAccess] = useState<AccessState>(DEFAULT_ACCESS);
   const hydrated = useRef(false);
 
   // hydrate from share link on mount
   useEffect(() => {
     const s = new URLSearchParams(window.location.search).get('s');
     if (s) {
-      const m = decode(s);
-      if (m && m.length) {
+      const snap = decodeSnapshot(s);
+      if (snap) {
         // Hydrate from the share link after mount — reading window during
-        // render/init would cause an SSR hydration mismatch, so this must
-        // run as a post-mount effect.
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setModules(m);
-        seq.current = m.length + 1;
+        // render/init would cause an SSR hydration mismatch, so these must
+        // run as post-mount effects.
+        /* eslint-disable react-hooks/set-state-in-effect */
+        if (Array.isArray(snap.m) && snap.m.length && snap.m.every((x) => x && typeof x.id === 'string')) {
+          setModules(snap.m);
+          seq.current = snap.m.length + 1;
+        }
+        if (snap.k && typeof snap.k.horizonMonths === 'number') setAssumptions(snap.k);
+        if (snap.i && typeof snap.i.amount === 'number') setInvestment(snap.i);
+        if (snap.a && typeof snap.a.stake === 'number') setAccess(snap.a);
+        /* eslint-enable react-hooks/set-state-in-effect */
       }
     }
     hydrated.current = true;
   }, []);
 
-  // reflect module state into the URL
+  // reflect the full studio state into the URL
   useEffect(() => {
     if (!hydrated.current) return;
-    const url = `${window.location.pathname}?s=${encode(modules)}`;
+    const url = `${window.location.pathname}?s=${encode({ m: modules, k: assumptions, i: investment, a: access })}`;
     window.history.replaceState(null, '', url);
-  }, [modules]);
+  }, [modules, assumptions, investment, access]);
 
   const addPreset = (key: string) => {
     seq.current += 1;
@@ -180,12 +202,12 @@ export function Studio() {
 
         <motion.section {...reveal} style={{ display: 'grid', gap: 16 }}>
           <span className="eyebrow">03 · ARN investment</span>
-          <InvestmentPanel />
+          <InvestmentPanel value={investment} onChange={(patch) => setInvestment((prev) => ({ ...prev, ...patch }))} />
         </motion.section>
 
         <motion.section {...reveal} style={{ display: 'grid', gap: 16 }}>
           <span className="eyebrow">04 · Access &amp; node</span>
-          <AccessPanel />
+          <AccessPanel value={access} onChange={(patch) => setAccess((prev) => ({ ...prev, ...patch }))} />
         </motion.section>
 
         <LegalFooter asOf={params.asOf} source="aerion-tokenomics-simulation" />

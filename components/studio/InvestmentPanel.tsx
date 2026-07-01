@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { motion } from 'motion/react';
 import {
   SALE_ROUNDS,
@@ -9,6 +9,7 @@ import {
   computeVesting,
   type SaleRound,
 } from '@/packages/calc-engine';
+import type { InvestmentState } from '@/lib/studio';
 import { formatArn, formatEur } from '@/lib/format';
 import { CountUp, Icon, RangeField, Segmented } from './primitives';
 import { Src } from './SourceTag';
@@ -65,31 +66,24 @@ function VestingCurve({ round, arn, horizon }: { round: SaleRound; arn: number; 
 
 const SCENARIO_PRICES = [0.2, 0.4, 0.8];
 
-export function InvestmentPanel() {
-  const [roundKey, setRoundKey] = useState<SaleRound['key']>('public');
-  const [amount, setAmount] = useState(5000);
-  const [dashboard, setDashboard] = useState(true);
-  const [horizon, setHorizon] = useState(24);
-  const [scenario, setScenario] = useState<number | null>(0.4);
-  const [customPrice, setCustomPrice] = useState('');
-
-  const round = SALE_ROUNDS.find((r) => r.key === roundKey) ?? SALE_ROUNDS[2];
-  const activePrice = customPrice.trim() !== '' && Number.isFinite(Number(customPrice)) ? Number(customPrice) : scenario;
+export function InvestmentPanel({ value, onChange }: { value: InvestmentState; onChange: (patch: Partial<InvestmentState>) => void }) {
+  const round = SALE_ROUNDS.find((r) => r.key === value.roundKey) ?? SALE_ROUNDS[2];
+  const activePrice = value.customPrice.trim() !== '' && Number.isFinite(Number(value.customPrice)) ? Number(value.customPrice) : value.scenario;
 
   const result = useMemo(
     () =>
       computeAllocation({
-        amountEur: amount,
+        amountEur: value.amount,
         round,
-        dashboardBonusPct: dashboard ? SUPPLY_FACTS.defaultDashboardBonusPct : 0,
-        hypotheticalPriceEur: activePrice,
+        dashboardBonusPct: value.dashboard ? SUPPLY_FACTS.defaultDashboardBonusPct : 0,
+        hypotheticalPriceEur: activePrice != null && Number.isFinite(activePrice) ? activePrice : null,
       }),
-    [amount, round, dashboard, activePrice],
+    [value.amount, round, value.dashboard, activePrice],
   );
   const vest = useMemo(() => computeVesting(round, result.arnReceived, 36), [round, result.arnReceived]);
-  const atHorizon = vest[Math.min(horizon, 36)];
+  const atHorizon = vest[Math.min(value.horizon, 36)];
   const supplyPct = (result.arnReceived / SUPPLY_FACTS.maxSupply) * 100;
-  const multiple = activePrice != null && amount > 0 ? (result.arnReceived * activePrice) / amount : null;
+  const multiple = activePrice != null && value.amount > 0 ? (result.arnReceived * activePrice) / value.amount : null;
 
   return (
     <div className="glass" style={{ padding: 28, display: 'grid', gap: 22 }}>
@@ -102,7 +96,7 @@ export function InvestmentPanel() {
           </div>
         </div>
         <div style={{ display: 'grid', gap: 6, justifyItems: 'end' }}>
-          <Segmented value={roundKey} onChange={setRoundKey} options={SALE_ROUNDS.map((r) => ({ value: r.key, label: `${r.label} · €${r.priceEur}` }))} />
+          <Segmented value={value.roundKey} onChange={(v) => onChange({ roundKey: v })} options={SALE_ROUNDS.map((r) => ({ value: r.key, label: `${r.label} · €${r.priceEur}` }))} />
           <span className="faint" style={{ fontSize: 10.5 }}>
             {round.cliffMonths}mo cliff · {Math.round(round.cliffUnlock * 100)}% then linear over {round.linearMonths}mo <Src k="saleRounds" />
           </span>
@@ -110,18 +104,17 @@ export function InvestmentPanel() {
       </div>
 
       <div className="invest-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1.05fr)', gap: 30 }}>
-        {/* LEFT — position */}
         <div style={{ display: 'grid', gap: 18 }}>
-          <RangeField label="Investment" unit="EUR" value={amount} min={100} max={100000} step={100} onChange={setAmount} display={(v) => formatEur(v)} />
+          <RangeField label="Investment" unit="EUR" value={value.amount} min={100} max={100000} step={100} onChange={(v) => onChange({ amount: v })} display={(v) => formatEur(v)} />
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <div className="label">Acquire via</div>
               <div className="faint" style={{ fontSize: 11, marginTop: 3 }}>Dashboard adds {Math.round(SUPPLY_FACTS.defaultDashboardBonusPct * 100)}% bonus ARN</div>
             </div>
-            <button className="toggle" data-on={dashboard} onClick={() => setDashboard((d) => !d)} aria-pressed={dashboard} aria-label="Acquire via dashboard">
+            <button className="toggle" data-on={value.dashboard} onClick={() => onChange({ dashboard: !value.dashboard })} aria-pressed={value.dashboard} aria-label="Acquire via dashboard">
               <motion.span layout className="toggle-knob" transition={{ type: 'spring', stiffness: 500, damping: 34 }} />
-              <span className="toggle-txt">{dashboard ? 'DASHBOARD' : 'EXCHANGE'}</span>
+              <span className="toggle-txt">{value.dashboard ? 'DASHBOARD' : 'EXCHANGE'}</span>
             </button>
           </div>
 
@@ -141,20 +134,19 @@ export function InvestmentPanel() {
             </div>
           </div>
 
-          {/* value scenarios */}
           <div style={{ display: 'grid', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
               <span className="label">Illustrative value · if ARN were <Src k="arnPriceScenario" /></span>
               <span className="faint" style={{ fontSize: 10 }}>you set the price · not a forecast</span>
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-              {SCENARIO_PRICES.map((p) => (
-                <button key={p} className="chip" data-on={activePrice === p && customPrice.trim() === ''} onClick={() => { setScenario(p); setCustomPrice(''); }}>
-                  €{p.toFixed(2)}
+              {SCENARIO_PRICES.map((pr) => (
+                <button key={pr} className="chip" data-on={activePrice === pr && value.customPrice.trim() === ''} onClick={() => onChange({ scenario: pr, customPrice: '' })}>
+                  €{pr.toFixed(2)}
                 </button>
               ))}
               <span className="faint">·</span>
-              <input className="num-chip" style={{ width: 72 }} inputMode="decimal" placeholder="custom" value={customPrice} onChange={(e) => setCustomPrice(e.target.value)} aria-label="Custom ARN price" />
+              <input className="num-chip" style={{ width: 72 }} inputMode="decimal" placeholder="custom" value={value.customPrice} onChange={(e) => onChange({ customPrice: e.target.value })} aria-label="Custom ARN price" />
             </div>
             <div className="value-row">
               <div>
@@ -169,16 +161,15 @@ export function InvestmentPanel() {
           </div>
         </div>
 
-        {/* RIGHT — vesting + supply */}
         <div style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span className="label">Unlock schedule · {round.label}</span>
-            <Segmented value={String(horizon)} onChange={(v) => setHorizon(Number(v))} options={[{ value: '12', label: '12mo' }, { value: '24', label: '24mo' }, { value: '36', label: '36mo' }]} />
+            <Segmented value={String(value.horizon)} onChange={(v) => onChange({ horizon: Number(v) })} options={[{ value: '12', label: '12mo' }, { value: '24', label: '24mo' }, { value: '36', label: '36mo' }]} />
           </div>
-          <VestingCurve round={round} arn={result.arnReceived} horizon={horizon} />
+          <VestingCurve round={round} arn={result.arnReceived} horizon={value.horizon} />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <div className="stat-tile" style={{ padding: '10px 14px', border: '1px solid var(--line)', borderRadius: 'var(--r-md)', background: 'var(--paper-3)' }}>
-              <div className="label">Unlocked at {horizon}mo</div>
+              <div className="label">Unlocked at {value.horizon}mo</div>
               <CountUp className="stat-num" style={{ fontSize: 20, color: 'var(--deep-sage)' }} value={atHorizon.unlockedArn} format={(v) => `${Math.round(v).toLocaleString('en-IE')}`} />
               <span className="faint" style={{ fontSize: 10.5 }}>{Math.round(atHorizon.unlockedFraction * 100)}% of your ARN</span>
             </div>

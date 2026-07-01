@@ -26,6 +26,41 @@ export interface ModuleConfig {
   efficiencyJPerTH: number;
 }
 
+// Lifted panel state so the whole studio can be shared via URL.
+export interface InvestmentState {
+  roundKey: 'seed' | 'private' | 'public';
+  amount: number;
+  dashboard: boolean;
+  horizon: number;
+  scenario: number | null;
+  customPrice: string;
+}
+export const DEFAULT_INVESTMENT: InvestmentState = {
+  roundKey: 'public',
+  amount: 5000,
+  dashboard: true,
+  horizon: 24,
+  scenario: 0.4,
+  customPrice: '',
+};
+
+export interface AccessState {
+  stake: number;
+  uptime: number;
+  reputation: number;
+  taskQuality: number;
+  eligible: boolean;
+  poolN: number;
+}
+export const DEFAULT_ACCESS: AccessState = {
+  stake: 25000,
+  uptime: 0.95,
+  reputation: 0.8,
+  taskQuality: 0.8,
+  eligible: true,
+  poolN: 250,
+};
+
 export interface CashPoint {
   month: number;
   cumulative: number;

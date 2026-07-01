@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { motion } from 'motion/react';
 import {
   DEFAULT_BOOST,
@@ -9,6 +9,7 @@ import {
   computeBoost,
   licenseForStake,
 } from '@/packages/calc-engine';
+import type { AccessState } from '@/lib/studio';
 import { CountUp, Icon, RangeField } from './primitives';
 import { Src } from './SourceTag';
 
@@ -51,13 +52,8 @@ function BoostCurve({ stake, uptime, reputation, taskQuality, eligible }: { stak
   );
 }
 
-export function AccessPanel() {
-  const [stake, setStake] = useState(25000);
-  const [uptime, setUptime] = useState(0.95);
-  const [reputation, setReputation] = useState(0.8);
-  const [taskQuality, setTaskQuality] = useState(0.8);
-  const [eligible, setEligible] = useState(true);
-  const [poolN, setPoolN] = useState(250);
+export function AccessPanel({ value, onChange }: { value: AccessState; onChange: (patch: Partial<AccessState>) => void }) {
+  const { stake, uptime, reputation, taskQuality, eligible, poolN } = value;
 
   const userBoost = useMemo(() => computeBoost({ stake, uptime, reputation, taskQuality, eligible }, DEFAULT_BOOST), [stake, uptime, reputation, taskQuality, eligible]);
   const competitorBoost = useMemo(() => computeBoost(COMPETITOR, DEFAULT_BOOST), []);
@@ -82,16 +78,16 @@ export function AccessPanel() {
 
       <div className="invest-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1.05fr)', gap: 30 }}>
         <div style={{ display: 'grid', gap: 16 }}>
-          <RangeField label="ARN staked" unit="ARN" value={stake} min={0} max={200000} step={1000} onChange={setStake} display={(v) => Math.round(v).toLocaleString('en-IE')} />
-          <RangeField label="Uptime" value={uptime} min={0.4} max={1} step={0.01} onChange={setUptime} display={(v) => `${Math.round(v * 100)}%`} />
-          <RangeField label="Reputation" value={reputation} min={0} max={1} step={0.01} onChange={setReputation} display={(v) => `${Math.round(v * 100)}%`} />
-          <RangeField label="Task quality" value={taskQuality} min={0} max={1} step={0.01} onChange={setTaskQuality} display={(v) => `${Math.round(v * 100)}%`} />
+          <RangeField label="ARN staked" unit="ARN" value={stake} min={0} max={200000} step={1000} onChange={(v) => onChange({ stake: v })} display={(v) => Math.round(v).toLocaleString('en-IE')} />
+          <RangeField label="Uptime" value={uptime} min={0.4} max={1} step={0.01} onChange={(v) => onChange({ uptime: v })} display={(v) => `${Math.round(v * 100)}%`} />
+          <RangeField label="Reputation" value={reputation} min={0} max={1} step={0.01} onChange={(v) => onChange({ reputation: v })} display={(v) => `${Math.round(v * 100)}%`} />
+          <RangeField label="Task quality" value={taskQuality} min={0} max={1} step={0.01} onChange={(v) => onChange({ taskQuality: v })} display={(v) => `${Math.round(v * 100)}%`} />
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <div className="label">Eligibility</div>
               <div className="faint" style={{ fontSize: 11, marginTop: 3 }}>KYC &amp; jurisdiction — zero weight if ineligible</div>
             </div>
-            <button className="toggle" data-on={eligible} onClick={() => setEligible((e) => !e)} aria-pressed={eligible}>
+            <button className="toggle" data-on={eligible} onClick={() => onChange({ eligible: !eligible })} aria-pressed={eligible}>
               <motion.span layout className="toggle-knob" transition={{ type: 'spring', stiffness: 500, damping: 34 }} />
               <span className="toggle-txt">{eligible ? 'ELIGIBLE' : 'RESTRICTED'}</span>
             </button>
@@ -117,7 +113,7 @@ export function AccessPanel() {
             <p className="faint" style={{ fontSize: 10.5, marginTop: 2 }}>Stake is logarithmic — large holders do not dominate allocation linearly.</p>
           </div>
 
-          <RangeField label="Participants in pool" value={poolN} min={10} max={2000} step={10} onChange={(v) => setPoolN(Math.round(v))} display={(v) => Math.round(v).toLocaleString('en-IE')} />
+          <RangeField label="Participants in pool" value={poolN} min={10} max={2000} step={10} onChange={(v) => onChange({ poolN: Math.round(v) })} display={(v) => Math.round(v).toLocaleString('en-IE')} />
         </div>
       </div>
 
@@ -130,7 +126,7 @@ export function AccessPanel() {
               key={c.key}
               className="license-chip"
               data-on={on}
-              onClick={() => setStake(Math.max(c.minStake, c.minStake === 0 ? 0 : c.minStake))}
+              onClick={() => onChange({ stake: c.minStake })}
               aria-pressed={on}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
