@@ -10,7 +10,7 @@ const LINES = [
 
 export function EnergyField() {
   return (
-    <div aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+    <div className="energy-field" aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
       <svg
         width="100%"
         height="100%"

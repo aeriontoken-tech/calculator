@@ -146,10 +146,13 @@ export function Studio() {
         <motion.section {...reveal} style={{ display: 'grid', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <span className="eyebrow">02 · Mining modules</span>
-            <button className="pill" onClick={copyLink}>
-              <Icon name={copied ? 'arn' : 'copy'} size={13} />
-              {copied ? 'Link copied' : 'Share'}
-            </button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="pill" onClick={() => window.print()}>Export PDF</button>
+              <button className="pill" onClick={copyLink}>
+                <Icon name={copied ? 'arn' : 'copy'} size={13} />
+                {copied ? 'Link copied' : 'Share'}
+              </button>
+            </div>
           </div>
           <MarketStrip
             a={assumptions}

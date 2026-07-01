@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { MINING_PRESETS } from '@/lib/presets';
 import { Icon } from './primitives';
+import { RequestAccessModal } from './RequestAccessModal';
 
 function Mark() {
   // minimal geometric tri-band "A"
@@ -22,6 +23,7 @@ function Mark() {
 }
 
 export function StudioHeader() {
+  const [access, setAccess] = useState(false);
   return (
     <header
       style={{
@@ -63,9 +65,10 @@ export function StudioHeader() {
           <a className="pill studio-nav-extra" href="/methodology" style={{ textDecoration: 'none' }}>
             Methodology
           </a>
-          <button className="pill pill-accent">Request access</button>
+          <button className="pill pill-accent" onClick={() => setAccess(true)}>Request access</button>
         </div>
       </motion.div>
+      <RequestAccessModal open={access} onClose={() => setAccess(false)} />
     </header>
   );
 }

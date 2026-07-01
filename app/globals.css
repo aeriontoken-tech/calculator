@@ -539,6 +539,52 @@ input[type='range'].rng::-moz-range-thumb {
   font-size: 7px;
 }
 
+.field-input {
+  width: 100%;
+  background: var(--paper-3);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 11px 13px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  resize: vertical;
+}
+.field-input:focus {
+  outline: none;
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(139, 227, 160, 0.25);
+}
+.field-input::placeholder {
+  color: var(--ink-faint);
+}
+
+@media print {
+  body {
+    background: #fff !important;
+  }
+  body::before,
+  .energy-field,
+  header,
+  .pill,
+  .drawer-toggle,
+  .icon-btn,
+  .add-chip {
+    display: none !important;
+  }
+  .glass {
+    box-shadow: none !important;
+    border: 1px solid #d8d4c8 !important;
+    backdrop-filter: none !important;
+    background: #fff !important;
+    break-inside: avoid;
+  }
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+}
+
 /* keyboard focus visibility (mouse users unaffected) */
 button:focus-visible,
 a:focus-visible,
