@@ -22,4 +22,13 @@ describe('computeForwardEconomics', () => {
     const r = computeForwardEconomics(base, 36.63, { horizonMonths: 120, hashpriceMonthlyChangePct: 0, discountAnnualPct: 0.12 });
     expect(r.npv).toBeLessThan(r.totalProfit);
   });
+
+  it('idle behavior: cumulative is non-decreasing under deep decline (operator idles rather than accumulating losses)', () => {
+    // hashprice0=20 is already below break-even at €0.06/kWh, so the miner
+    // idles from month 1. With -5% monthly decline it never recovers.
+    const r = computeForwardEconomics(base, 20, { horizonMonths: 60, hashpriceMonthlyChangePct: -0.05, discountAnnualPct: 0 });
+    for (let i = 1; i < r.points.length; i++) {
+      expect(r.points[i].cumulative).toBeGreaterThanOrEqual(r.points[i - 1].cumulative);
+    }
+  });
 });
