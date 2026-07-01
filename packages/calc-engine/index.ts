@@ -4,3 +4,6 @@ export * from './mining';
 export * from './scenarios';
 export * from './allocation';
 export * from './boost';
+export * from './market';
+export * from './forward';
+export * from './montecarlo';
