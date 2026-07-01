@@ -63,7 +63,7 @@ export function Studio() {
   const [copied, setCopied] = useState(false);
   const [assumptions, setAssumptions] = useState<ForwardAssumptions>({
     horizonMonths: 48,
-    hashpriceMonthlyChangePct: -0.015,
+    hashpriceMonthlyChangePct: -0.01,
     discountAnnualPct: 0.12,
   });
   const hydrated = useRef(false);
