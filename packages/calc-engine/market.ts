@@ -10,7 +10,7 @@ export const DEFAULT_MARKET: MarketParameters = {
   hashprice: 36.63,
   btcPriceEur: 60000,
   difficultyProxy: 1.0,
-  monthlyChangePct: -0.03,
+  monthlyChangePct: -0.015,
   asOf: '2026-05-29',
   source: 'aerion-tokenomics-simulation/summary.json (hashprice); decline illustrative',
 };

@@ -1,10 +1,15 @@
 import {
   computeMinerEconomics,
   runMiningScenarioBand,
+  computeForwardEconomics,
+  runMonteCarlo,
+  DEFAULT_MC,
   type MinerInputs,
   type MinerResult,
   type MiningParameters,
   type ScenarioBand,
+  type ForwardAssumptions,
+  type McResult,
 } from '@/packages/calc-engine';
 import type { EnergyType } from './presets';
 
@@ -21,6 +26,11 @@ export interface ModuleConfig {
   efficiencyJPerTH: number;
 }
 
+export interface CashPoint {
+  month: number;
+  cumulative: number;
+}
+
 export interface ModuleResult {
   perMiner: MinerResult;
   band: ScenarioBand;
@@ -31,7 +41,13 @@ export interface ModuleResult {
   capex: number;
   powerKW: number;
   hashratePH: number;
-  paybackYears: number | null;
+  paybackYears: number | null; // snapshot (no decline)
+  // forward (multi-year, with decline + horizon)
+  forwardPaybackMonths: number | null;
+  npv: number; // fleet NPV over horizon
+  roiPct: number;
+  mc: McResult; // percentiles: payback months (fleet-invariant), NPV scaled to fleet
+  cashflow: CashPoint[]; // fleet cumulative cash flow
 }
 
 export function moduleToMinerInputs(cfg: ModuleConfig, params: MiningParameters): MinerInputs {
@@ -48,13 +64,25 @@ export function moduleToMinerInputs(cfg: ModuleConfig, params: MiningParameters)
   };
 }
 
-export function computeModule(cfg: ModuleConfig, params: MiningParameters): ModuleResult {
+function seedFrom(id: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) {
+    h ^= id.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+export function computeModule(cfg: ModuleConfig, params: MiningParameters, a: ForwardAssumptions): ModuleResult {
   const inputs = moduleToMinerInputs(cfg, params);
   const perMiner = computeMinerEconomics(inputs, params.hashprice);
   const band = runMiningScenarioBand(inputs, params);
   const n = Math.max(0, cfg.minerCount);
+
+  const fwd = computeForwardEconomics(inputs, params.hashprice, a);
+  const mcRaw = runMonteCarlo(inputs, params.hashprice, a, { ...DEFAULT_MC, paths: 240 }, seedFrom(cfg.id));
+
   const marginDay = perMiner.marginDay * n;
-  const capex = params.defaults.capex * n;
   return {
     perMiner,
     band,
@@ -62,10 +90,22 @@ export function computeModule(cfg: ModuleConfig, params: MiningParameters): Modu
     revenueDay: perMiner.revenueDay * n,
     energyCostDay: perMiner.energyCostDay * n,
     marginDay,
-    capex,
+    capex: params.defaults.capex * n,
     powerKW: perMiner.powerKW * n,
     hashratePH: (cfg.hashrateTH / 1000) * n,
-    paybackYears: marginDay > 0 ? capex / marginDay / 365 : null,
+    paybackYears: marginDay > 0 ? (params.defaults.capex * n) / marginDay / 365 : null,
+    forwardPaybackMonths: fwd.paybackMonths,
+    npv: fwd.npv * n,
+    roiPct: fwd.roiPct,
+    mc: {
+      paybackP10: mcRaw.paybackP10,
+      paybackP50: mcRaw.paybackP50,
+      paybackP90: mcRaw.paybackP90,
+      npvP10: mcRaw.npvP10 * n,
+      npvP50: mcRaw.npvP50 * n,
+      npvP90: mcRaw.npvP90 * n,
+    },
+    cashflow: fwd.points.map((p) => ({ month: p.month, cumulative: p.cumulative * n })),
   };
 }
 
@@ -79,12 +119,30 @@ export interface PortfolioResult {
   powerKW: number;
   hashratePH: number;
   paybackYears: number | null;
+  npv: number; // sum of module NPVs
+  forwardPaybackMonths: number | null; // from aggregate cash flow
+  cashflow: CashPoint[];
+  mcNpvP10: number;
+  mcNpvP50: number;
+  mcNpvP90: number;
 }
 
 export function computePortfolio(results: ModuleResult[]): PortfolioResult {
-  const sum = (f: (r: ModuleResult) => number) => results.reduce((a, r) => a + f(r), 0);
+  const sum = (f: (r: ModuleResult) => number) => results.reduce((acc, r) => acc + f(r), 0);
   const marginDay = sum((r) => r.marginDay);
   const capex = sum((r) => r.capex);
+  const horizon = results.reduce((m, r) => Math.max(m, r.cashflow.length), 0);
+  const cashflow: CashPoint[] = Array.from({ length: horizon }, (_, i) => ({
+    month: i + 1,
+    cumulative: results.reduce((acc, r) => acc + (r.cashflow[i]?.cumulative ?? 0), 0),
+  }));
+  let forwardPaybackMonths: number | null = null;
+  for (const p of cashflow) {
+    if (p.cumulative >= 0) {
+      forwardPaybackMonths = p.month;
+      break;
+    }
+  }
   return {
     marginDay,
     marginYear: marginDay * 365,
@@ -95,5 +153,11 @@ export function computePortfolio(results: ModuleResult[]): PortfolioResult {
     powerKW: sum((r) => r.powerKW),
     hashratePH: sum((r) => r.hashratePH),
     paybackYears: marginDay > 0 ? capex / marginDay / 365 : null,
+    npv: sum((r) => r.npv),
+    forwardPaybackMonths,
+    cashflow,
+    mcNpvP10: sum((r) => r.mc.npvP10),
+    mcNpvP50: sum((r) => r.mc.npvP50),
+    mcNpvP90: sum((r) => r.mc.npvP90),
   };
 }

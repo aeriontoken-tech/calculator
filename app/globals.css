@@ -489,8 +489,60 @@ input[type='range'].rng::-moz-range-thumb {
   animation: flow 9s linear infinite;
 }
 
+.src {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  font-size: 9px;
+  line-height: 1;
+  font-family: var(--font-mono);
+  vertical-align: middle;
+  margin-left: 4px;
+  cursor: help;
+  border: 1px solid var(--line-strong);
+  color: var(--ink-faint);
+  background: var(--paper-3);
+}
+.src-illustrative {
+  color: #9a7b3c;
+  border-color: rgba(154, 123, 60, 0.42);
+  background: rgba(154, 123, 60, 0.09);
+}
+.src-confirmed {
+  color: var(--mint-ink);
+  border-color: rgba(47, 125, 79, 0.3);
+}
+.src:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 1px;
+}
+
+.mc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.mc-band {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--deep-sage);
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.mc-band .dot {
+  font-size: 7px;
+}
+
 @media (max-width: 760px) {
-  .invest-grid {
+  .invest-grid,
+  .market-grid,
+  .mc-grid {
     grid-template-columns: 1fr !important;
   }
   .studio-nav-extra {

@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { DEFAULT_MINING_PARAMETERS } from '@/packages/calc-engine';
+import { DEFAULT_MINING_PARAMETERS, type ForwardAssumptions } from '@/packages/calc-engine';
 import { presetByKey, type MiningPreset } from '@/lib/presets';
 import { computeModule, computePortfolio, type ModuleConfig } from '@/lib/studio';
 import { SummaryHero } from './SummaryHero';
 import { ModuleCard } from './ModuleCard';
 import { InvestmentPanel } from './InvestmentPanel';
 import { AccessPanel } from './AccessPanel';
+import { MarketStrip } from './MarketStrip';
 import { StudioHeader, AddModule, LegalFooter } from './chrome';
 import { EnergyField } from './EnergyField';
 import { Icon } from './primitives';
@@ -60,6 +61,11 @@ export function Studio() {
     configFromPreset(presetByKey('hamburg'), 'm2'),
   ]);
   const [copied, setCopied] = useState(false);
+  const [assumptions, setAssumptions] = useState<ForwardAssumptions>({
+    horizonMonths: 36,
+    hashpriceMonthlyChangePct: -0.015,
+    discountAnnualPct: 0.12,
+  });
   const hydrated = useRef(false);
 
   // hydrate from share link on mount
@@ -112,10 +118,11 @@ export function Studio() {
     }
   };
 
-  const portfolio = useMemo(
-    () => computePortfolio(modules.map((c) => computeModule(c, params))),
-    [modules, params],
+  const results = useMemo(
+    () => modules.map((c) => computeModule(c, params, assumptions)),
+    [modules, params, assumptions],
   );
+  const portfolio = useMemo(() => computePortfolio(results), [results]);
 
   return (
     <>
@@ -133,20 +140,23 @@ export function Studio() {
         }}
       >
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1] }}>
-          <SummaryHero portfolio={portfolio} moduleCount={modules.length} />
+          <SummaryHero portfolio={portfolio} moduleCount={modules.length} horizonMonths={assumptions.horizonMonths} />
         </motion.div>
 
         <motion.section {...reveal} style={{ display: 'grid', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <span className="eyebrow">02 · Mining modules</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <span className="label studio-nav-extra">{params.defaults.hashrateTH} TH/s · hashprice €{params.hashprice}/PH·day</span>
-              <button className="pill" onClick={copyLink}>
-                <Icon name={copied ? 'arn' : 'copy'} size={13} />
-                {copied ? 'Link copied' : 'Share'}
-              </button>
-            </div>
+            <button className="pill" onClick={copyLink}>
+              <Icon name={copied ? 'arn' : 'copy'} size={13} />
+              {copied ? 'Link copied' : 'Share'}
+            </button>
           </div>
+          <MarketStrip
+            a={assumptions}
+            onChange={(patch) => setAssumptions((prev) => ({ ...prev, ...patch }))}
+            asOf={params.asOf}
+            hashprice={params.hashprice}
+          />
           <motion.div layout style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 18, alignItems: 'start' }}>
             <AnimatePresence mode="popLayout">
               {modules.map((c, i) => (
@@ -154,7 +164,7 @@ export function Studio() {
                   key={c.id}
                   index={i}
                   config={c}
-                  params={params}
+                  result={results[i]}
                   onChange={(patch) => updateModule(c.id, patch)}
                   onDuplicate={() => duplicate(c.id)}
                   onRemove={() => remove(c.id)}
