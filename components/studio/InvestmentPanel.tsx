@@ -11,6 +11,7 @@ import {
 } from '@/packages/calc-engine';
 import { formatArn, formatEur } from '@/lib/format';
 import { CountUp, Icon, RangeField, Segmented } from './primitives';
+import { Src } from './SourceTag';
 
 function VestingCurve({ round, arn, horizon }: { round: SaleRound; arn: number; horizon: number }) {
   const months = 36;
@@ -103,7 +104,7 @@ export function InvestmentPanel() {
         <div style={{ display: 'grid', gap: 6, justifyItems: 'end' }}>
           <Segmented value={roundKey} onChange={setRoundKey} options={SALE_ROUNDS.map((r) => ({ value: r.key, label: `${r.label} · €${r.priceEur}` }))} />
           <span className="faint" style={{ fontSize: 10.5 }}>
-            {round.cliffMonths}mo cliff · {Math.round(round.cliffUnlock * 100)}% then linear over {round.linearMonths}mo
+            {round.cliffMonths}mo cliff · {Math.round(round.cliffUnlock * 100)}% then linear over {round.linearMonths}mo <Src k="saleRounds" />
           </span>
         </div>
       </div>
@@ -143,7 +144,7 @@ export function InvestmentPanel() {
           {/* value scenarios */}
           <div style={{ display: 'grid', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-              <span className="label">Illustrative value · if ARN were</span>
+              <span className="label">Illustrative value · if ARN were <Src k="arnPriceScenario" /></span>
               <span className="faint" style={{ fontSize: 10 }}>you set the price · not a forecast</span>
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>

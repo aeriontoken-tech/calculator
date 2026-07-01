@@ -10,6 +10,7 @@ import {
   licenseForStake,
 } from '@/packages/calc-engine';
 import { CountUp, Icon, RangeField } from './primitives';
+import { Src } from './SourceTag';
 
 const COMPETITOR = { stake: 10000, uptime: 0.9, reputation: 0.7, taskQuality: 0.7, eligible: true };
 
@@ -111,7 +112,7 @@ export function AccessPanel() {
           </div>
 
           <div>
-            <div className="label" style={{ marginBottom: 8 }}>Access weight vs stake · concave by design</div>
+            <div className="label" style={{ marginBottom: 8 }}>Access weight vs stake · concave by design <Src k="boostConstants" /></div>
             <BoostCurve stake={stake} uptime={uptime} reputation={reputation} taskQuality={taskQuality} eligible={eligible} />
             <p className="faint" style={{ fontSize: 10.5, marginTop: 2 }}>Stake is logarithmic — large holders do not dominate allocation linearly.</p>
           </div>
@@ -120,6 +121,7 @@ export function AccessPanel() {
         </div>
       </div>
 
+      <div className="label" style={{ marginBottom: -6 }}>License tiers · tap to set <Src k="tiers" /></div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 10 }}>
         {LICENSE_CLASSES.map((c) => {
           const on = c.key === license.key;
