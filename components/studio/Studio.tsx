@@ -21,6 +21,7 @@ import { MarketStrip } from './MarketStrip';
 import { StudioHeader, AddModule, LegalFooter } from './chrome';
 import { EnergyField } from './EnergyField';
 import { Icon } from './primitives';
+import { getStudioMarket } from '@/lib/market';
 
 function configFromPreset(p: MiningPreset, id: string): ModuleConfig {
   return {
@@ -68,7 +69,11 @@ const reveal = {
 };
 
 export function Studio() {
-  const params = DEFAULT_MINING_PARAMETERS;
+  const market = getStudioMarket();
+  const params = useMemo(
+    () => ({ ...DEFAULT_MINING_PARAMETERS, hashprice: market.hashprice, asOf: market.asOf, source: market.source }),
+    [market.hashprice, market.asOf, market.source],
+  );
   const seq = useRef(2);
   const [modules, setModules] = useState<ModuleConfig[]>(() => [
     configFromPreset(presetByKey('wietzen'), 'm1'),
@@ -77,8 +82,8 @@ export function Studio() {
   const [copied, setCopied] = useState(false);
   const [assumptions, setAssumptions] = useState<ForwardAssumptions>({
     horizonMonths: 48,
-    hashpriceMonthlyChangePct: -0.01,
-    discountAnnualPct: 0.12,
+    hashpriceMonthlyChangePct: market.declinePctMonthly,
+    discountAnnualPct: market.discountAnnualPct,
   });
   const [investment, setInvestment] = useState<InvestmentState>(DEFAULT_INVESTMENT);
   const [access, setAccess] = useState<AccessState>(DEFAULT_ACCESS);
