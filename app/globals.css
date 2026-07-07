@@ -734,3 +734,20 @@ a:hover {
   color: var(--ink-soft);
   font-size: 12px;
 }
+
+/* Embed pages (/embed/*): the iframe shows only the card itself — no paper
+   background, texture, or outer spacing. The card goes opaque because the
+   translucent glass tint has nothing meaningful to blur over a transparent
+   document, and it must stay readable on any host-page background. */
+body:has(.embed-shell) {
+  background: transparent;
+}
+body:has(.embed-shell)::before {
+  display: none;
+}
+.embed-shell .glass {
+  background: var(--paper-3);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}

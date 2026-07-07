@@ -23,7 +23,7 @@ export function EmbedShell({ id, children }: { id: string; children: React.React
   }, [id]);
 
   return (
-    <div ref={ref} style={{ padding: 16, maxWidth: 1180, margin: '0 auto' }}>
+    <div ref={ref} className="embed-shell">
       {children}
     </div>
   );

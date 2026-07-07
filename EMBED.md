@@ -49,8 +49,12 @@ script once (before `</body>`):
 
 Notes:
 
-- The iframe content ships its own background, fonts and styles — the host
-  page's CSS cannot leak in (and vice versa).
+- The embed shows **only the card itself** — the document behind it is
+  transparent and there is zero outer padding, so the host page fully controls
+  spacing, and the landing background shows through around the card's rounded
+  corners. Add any margin/max-width on the host side.
+- The card's fonts and styles are self-contained — the host page's CSS cannot
+  leak in (and vice versa).
 - Embed pages are `noindex`; the canonical experience stays on
   `calc.aeriontoken.io`.
 - To embed from a different deployment (e.g. a preview URL), change the
