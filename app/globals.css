@@ -762,6 +762,27 @@ body:has(.embed-shell)::before {
   box-shadow: none;
 }
 
+/* Landing skin — /embed/investment. Tuned to the aeriontoken.io landing
+   section cards: warm cream fill, neutral hairline, large radius, roomier
+   padding (!important beats the panel's inline padding). */
+.embed-landing .glass {
+  background: var(--paper-2);
+  border-color: #d9d3c5;
+  border-radius: 28px;
+  padding: 38px 42px !important;
+}
+@media (max-width: 760px) {
+  .embed-landing .glass {
+    padding: 24px 20px !important;
+  }
+}
+/* inner tiles sit on the warmer card with the same neutral hairline */
+.embed-landing .scarcity,
+.embed-landing .tier-chip,
+.embed-landing .num-chip {
+  border-color: #ddd7c9;
+}
+
 /* Operator Console skin — /embed/access only (.embed-console). Other embeds,
    e.g. /embed/investment on the landing, keep the studio palette above. */
 .embed-console .glass {

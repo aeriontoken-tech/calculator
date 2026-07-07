@@ -22,19 +22,22 @@ const isThemeOrigin = (origin: string) =>
 // Height is not sensitive, so '*' as targetOrigin is fine for the outbound
 // message; inbound theme messages are origin-checked above.
 //
-// `console: true` opts the embed into the Operator Console skin: dark/light
-// tokens driven by ?theme= (stamped pre-paint in app/embed/access/layout.tsx)
-// and by 'aerion-embed-theme' messages. Embeds without it keep the studio
-// palette and ignore theme messages entirely.
+// Skins:
+// - 'console' (/embed/access): Operator Console tokens, dark/light driven by
+//   ?theme= (stamped pre-paint in app/embed/access/layout.tsx) and by
+//   'aerion-embed-theme' messages.
+// - 'landing' (/embed/investment): studio palette tuned to the aeriontoken.io
+//   landing section cards; ignores theme params/messages entirely.
 export function EmbedShell({
   id,
   children,
-  console: consoleSkin = false,
+  skin,
 }: {
   id: string;
   children: React.ReactNode;
-  console?: boolean;
+  skin?: 'console' | 'landing';
 }) {
+  const consoleSkin = skin === 'console';
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -67,7 +70,7 @@ export function EmbedShell({
   }, [consoleSkin]);
 
   return (
-    <div ref={ref} className={consoleSkin ? 'embed-shell embed-console' : 'embed-shell'}>
+    <div ref={ref} className={skin ? `embed-shell embed-${skin}` : 'embed-shell'}>
       {children}
     </div>
   );

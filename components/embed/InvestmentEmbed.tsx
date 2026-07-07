@@ -8,7 +8,7 @@ import { EmbedShell } from './EmbedShell';
 export function InvestmentEmbed() {
   const [investment, setInvestment] = useState<InvestmentState>(DEFAULT_INVESTMENT);
   return (
-    <EmbedShell id="investment">
+    <EmbedShell id="investment" skin="landing">
       <InvestmentPanel value={investment} onChange={(patch) => setInvestment((prev) => ({ ...prev, ...patch }))} />
     </EmbedShell>
   );

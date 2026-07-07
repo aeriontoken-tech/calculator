@@ -8,7 +8,7 @@ import { EmbedShell } from './EmbedShell';
 export function AccessEmbed() {
   const [access, setAccess] = useState<AccessState>(DEFAULT_ACCESS);
   return (
-    <EmbedShell id="access" console>
+    <EmbedShell id="access" skin="console">
       <AccessPanel value={access} onChange={(patch) => setAccess((prev) => ({ ...prev, ...patch }))} />
     </EmbedShell>
   );
