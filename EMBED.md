@@ -60,9 +60,12 @@ Notes:
 - To embed from a different deployment (e.g. a preview URL), change the
   `src` and the `e.origin` check together.
 
-## Dark / light theme
+## Dark / light theme — `/embed/access` only
 
-Embeds follow the host's theme (Operator Console tokens, Brand Brief v1.0):
+The access embed follows the host's theme (Operator Console tokens, Brand
+Brief v1.0). **`/embed/investment` is not themed**: it always renders the
+studio palette, ignores `?theme=` and theme messages, and is meant for the
+light landing page.
 
 - **First paint:** pass `?theme=dark` in the iframe `src`
   (e.g. `https://calc.aeriontoken.io/embed/access?theme=dark`).

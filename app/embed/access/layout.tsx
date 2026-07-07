@@ -1,4 +1,7 @@
-// Theme bootstrap for /embed/*, inlined so it runs before first paint and
+// Theme bootstrap for /embed/access only — the Operator Console skin. Other
+// embeds (e.g. /embed/investment on the landing) keep the studio palette and
+// never react to theme params or messages. Inlined so it runs before first
+// paint and
 // before React hydrates:
 // 1. Sets data-embed-theme from the ?theme= query param (host dashboards load
 //    /embed/*?theme=dark; no param means light).

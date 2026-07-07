@@ -760,28 +760,34 @@ body:has(.embed-shell)::before {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;
-  /* Console embed guide: card radius 12px, depth from hairline border only */
+}
+
+/* Operator Console skin — /embed/access only (.embed-console). Other embeds,
+   e.g. /embed/investment on the landing, keep the studio palette above. */
+.embed-console .glass {
+  /* console guide: card radius 12px, depth from hairline border only */
   border-radius: 12px;
 }
 /* console brief: no decorative gradients / glow in either theme */
-.embed-shell .glass::after {
+.embed-console .glass::after {
   display: none;
 }
-.embed-shell .license-chip {
+.embed-console .license-chip {
   background: var(--glass-2); /* card-2 role in both themes */
 }
-.embed-shell .license-chip:hover,
-.embed-shell .license-chip[data-on='true'] {
+.embed-console .license-chip:hover,
+.embed-console .license-chip[data-on='true'] {
   box-shadow: none;
 }
 /* readout panel spec from the console guide */
-.embed-shell .value-row {
+.embed-console .value-row {
   background: rgba(75, 119, 85, 0.04);
   border-color: rgba(75, 119, 85, 0.18);
 }
 
-/* Embed light theme — Operator Console light tokens (Brand Brief v1.0).
-   The studio's own palette stays untouched outside /embed/*. */
+/* Console light theme tokens (Brand Brief v1.0). data-embed-theme is only
+   ever stamped on /embed/access (see app/embed/access/layout.tsx), so these
+   never touch the studio pages or other embeds. */
 :root[data-embed-theme='light'] {
   --paper: #efeae0; /* obsidian role → cream ground */
   --paper-2: #e7e1d4; /* surface */
@@ -825,13 +831,13 @@ body:has(.embed-shell)::before {
   --shadow-soft: none; /* no glow, no drop-shadow */
   --shadow-lift: none;
 }
-:root[data-embed-theme='dark'] .embed-shell .pill-accent:hover {
+:root[data-embed-theme='dark'] .embed-console .pill-accent:hover {
   background: var(--sage);
   color: var(--cream);
 }
 /* theme cross-fade per the console guide */
-.embed-shell,
-.embed-shell * {
+.embed-console,
+.embed-console * {
   transition:
     background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
