@@ -757,4 +757,54 @@ body:has(.embed-shell)::before {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;
+  /* Console embed guide: card radius 12px, depth from hairline border only */
+  border-radius: 12px;
+}
+
+/* Embed dark theme (Operator Console, Brand Brief v1.0). Set via
+   ?theme=dark on first paint and via the 'aerion-embed-theme' postMessage
+   afterwards. Tokens flip by role; component rules below keep resolving the
+   same variable names. color-scheme stays light (declared above) — flipping
+   it to dark would make browsers composite the cross-origin iframe on an
+   opaque white canvas and bring the white-corner problem back. */
+:root[data-embed-theme='dark'] {
+  --paper: #0b0b0b; /* obsidian (page stays transparent; role kept for completeness) */
+  --paper-2: #0e0e0e; /* surface */
+  --paper-3: #111111; /* card */
+  --ink: #efeae0; /* cream */
+  --ink-soft: #d6d2c8; /* text-2 */
+  --ink-faint: #bcb9b1; /* muted */
+  --sage: #4b7755;
+  --deep-sage: #8be3a0; /* accent numbers/fills must read on dark → mint */
+  --mint: #8be3a0;
+  --mint-ink: #8be3a0;
+  --line: #242424; /* border */
+  --line-strong: #3a3a3a;
+  --glass: #111111; /* card */
+  --glass-2: #141414; /* card-2 */
+  --shadow-soft: none; /* no glow, no drop-shadow */
+  --shadow-lift: none;
+}
+/* light-tuned pieces that don't resolve through tokens */
+:root[data-embed-theme='dark'] .embed-shell .glass::after {
+  display: none; /* white top sheen — decorative gradients are banned in dark */
+}
+:root[data-embed-theme='dark'] .embed-shell .license-chip {
+  background: var(--glass-2);
+}
+:root[data-embed-theme='dark'] .embed-shell .value-row {
+  background: rgba(75, 119, 85, 0.04);
+  border-color: rgba(75, 119, 85, 0.18);
+}
+:root[data-embed-theme='dark'] .embed-shell .pill-accent:hover {
+  background: var(--sage);
+  color: var(--cream);
+}
+/* theme cross-fade per the console guide */
+.embed-shell,
+.embed-shell * {
+  transition:
+    background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }

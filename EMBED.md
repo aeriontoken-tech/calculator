@@ -60,6 +60,32 @@ Notes:
 - To embed from a different deployment (e.g. a preview URL), change the
   `src` and the `e.origin` check together.
 
+## Dark / light theme
+
+Embeds follow the host's theme (Operator Console tokens, Brand Brief v1.0):
+
+- **First paint:** pass `?theme=dark` in the iframe `src`
+  (e.g. `https://calc.aeriontoken.io/embed/access?theme=dark`).
+  No param (or `?theme=light`) renders light.
+- **Live switching:** post a message into the iframe whenever the host theme
+  changes (and once on iframe `load`):
+
+  ```js
+  iframe.contentWindow.postMessage(
+    { type: 'aerion-embed-theme', theme: 'dark' }, // or 'light'
+    'https://calc.aeriontoken.io',
+  );
+  ```
+
+  The embed only accepts theme messages from `https://aeriontoken.io`,
+  `https://www.aeriontoken.io`, and localhost. Staging origins can be added
+  via the `NEXT_PUBLIC_EMBED_THEME_ORIGINS` env var (comma-separated) on the
+  calc deployment.
+- The document background stays transparent in both themes, and the embed's
+  `color-scheme` deliberately stays `light` even when the dark tokens are
+  active — switching it to `dark` would make browsers composite the
+  cross-origin iframe on an opaque white canvas (the white-corner bug).
+
 ## Troubleshooting: white showing around the card's rounded corners
 
 The iframe document itself is transparent, so anything visible around the

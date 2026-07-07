@@ -2,9 +2,28 @@
 
 import { useEffect, useRef } from 'react';
 
-// Wraps an embedded panel and reports its rendered height to the parent page
-// via postMessage, so the host <iframe> can auto-size without scrollbars.
-// Height is not sensitive, so '*' as targetOrigin is fine here.
+// Hosts that are allowed to switch the embed theme via postMessage.
+// Extend with staging origins through NEXT_PUBLIC_EMBED_THEME_ORIGINS
+// (comma-separated); localhost is always allowed for development.
+const THEME_ORIGINS = new Set(
+  [
+    'https://aeriontoken.io',
+    'https://www.aeriontoken.io',
+    ...(process.env.NEXT_PUBLIC_EMBED_THEME_ORIGINS ?? '').split(','),
+  ]
+    .map((s) => s.trim())
+    .filter(Boolean),
+);
+const isThemeOrigin = (origin: string) =>
+  THEME_ORIGINS.has(origin) || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+
+// Wraps an embedded panel: reports its rendered height to the parent page via
+// postMessage (so the host <iframe> can auto-size without scrollbars), and
+// follows the host's dark/light theme. Initial theme comes from ?theme= (set
+// pre-paint in app/embed/layout.tsx); later switches arrive as
+// { type: 'aerion-embed-theme', theme: 'dark' | 'light' } from allowed hosts.
+// Height is not sensitive, so '*' as targetOrigin is fine for the outbound
+// message; inbound theme messages are origin-checked above.
 export function EmbedShell({ id, children }: { id: string; children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -21,6 +40,20 @@ export function EmbedShell({ id, children }: { id: string; children: React.React
     post();
     return () => ro.disconnect();
   }, [id]);
+
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      if (!isThemeOrigin(e.origin)) return;
+      const d: unknown = e.data;
+      if (!d || typeof d !== 'object' || (d as { type?: unknown }).type !== 'aerion-embed-theme') return;
+      const theme = (d as { theme?: unknown }).theme;
+      if (theme === 'dark' || theme === 'light') {
+        document.documentElement.setAttribute('data-embed-theme', theme);
+      }
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
 
   return (
     <div ref={ref} className="embed-shell">
