@@ -213,6 +213,9 @@ h3 {
 button {
   font-family: var(--font-mono);
   cursor: pointer;
+  /* buttons don't inherit color from the page — without this the UA default
+     (black) leaks into themed surfaces, e.g. license-chip titles on dark */
+  color: var(--ink);
 }
 
 /* ---------- range slider ---------- */
@@ -760,6 +763,43 @@ body:has(.embed-shell)::before {
   /* Console embed guide: card radius 12px, depth from hairline border only */
   border-radius: 12px;
 }
+/* console brief: no decorative gradients / glow in either theme */
+.embed-shell .glass::after {
+  display: none;
+}
+.embed-shell .license-chip {
+  background: var(--glass-2); /* card-2 role in both themes */
+}
+.embed-shell .license-chip:hover,
+.embed-shell .license-chip[data-on='true'] {
+  box-shadow: none;
+}
+/* readout panel spec from the console guide */
+.embed-shell .value-row {
+  background: rgba(75, 119, 85, 0.04);
+  border-color: rgba(75, 119, 85, 0.18);
+}
+
+/* Embed light theme — Operator Console light tokens (Brand Brief v1.0).
+   The studio's own palette stays untouched outside /embed/*. */
+:root[data-embed-theme='light'] {
+  --paper: #efeae0; /* obsidian role → cream ground */
+  --paper-2: #e7e1d4; /* surface */
+  --paper-3: #ece6da; /* card */
+  --ink: #14160f; /* cream role → ink */
+  --ink-soft: #3a3a33; /* text-2 */
+  --ink-faint: #5a5a50; /* muted */
+  --sage: #2f4f38;
+  --deep-sage: #233a2a;
+  --mint: #2f6b43; /* forest mint — legible on cream */
+  --mint-ink: #2f6b43;
+  --line: #cfc9bb; /* border */
+  --line-strong: #b4ae9f;
+  --glass: #ece6da; /* card */
+  --glass-2: #e3dccd; /* card-2 */
+  --shadow-soft: none;
+  --shadow-lift: none;
+}
 
 /* Embed dark theme (Operator Console, Brand Brief v1.0). Set via
    ?theme=dark on first paint and via the 'aerion-embed-theme' postMessage
@@ -784,17 +824,6 @@ body:has(.embed-shell)::before {
   --glass-2: #141414; /* card-2 */
   --shadow-soft: none; /* no glow, no drop-shadow */
   --shadow-lift: none;
-}
-/* light-tuned pieces that don't resolve through tokens */
-:root[data-embed-theme='dark'] .embed-shell .glass::after {
-  display: none; /* white top sheen — decorative gradients are banned in dark */
-}
-:root[data-embed-theme='dark'] .embed-shell .license-chip {
-  background: var(--glass-2);
-}
-:root[data-embed-theme='dark'] .embed-shell .value-row {
-  background: rgba(75, 119, 85, 0.04);
-  border-color: rgba(75, 119, 85, 0.18);
 }
 :root[data-embed-theme='dark'] .embed-shell .pill-accent:hover {
   background: var(--sage);
