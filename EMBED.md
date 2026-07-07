@@ -21,7 +21,7 @@ script once (before `</body>`):
   src="https://calc.aeriontoken.io/embed/investment"
   class="aerion-embed"
   title="Aerion — ARN investment calculator"
-  style="width:100%;border:0;display:block"
+  style="width:100%;border:0;display:block;background:transparent;color-scheme:light"
   loading="lazy"
   scrolling="no"
 ></iframe>
@@ -30,7 +30,7 @@ script once (before `</body>`):
   src="https://calc.aeriontoken.io/embed/access"
   class="aerion-embed"
   title="Aerion — Access & node calculator"
-  style="width:100%;border:0;display:block"
+  style="width:100%;border:0;display:block;background:transparent;color-scheme:light"
   loading="lazy"
   scrolling="no"
 ></iframe>
@@ -59,3 +59,20 @@ Notes:
   `calc.aeriontoken.io`.
 - To embed from a different deployment (e.g. a preview URL), change the
   `src` and the `e.origin` check together.
+
+## Troubleshooting: white showing around the card's rounded corners
+
+The iframe document itself is transparent, so anything visible around the
+card corners comes from whatever paints behind/over the iframe on the host
+page. Check in order:
+
+1. **The element directly behind the iframe** — a section/wrapper `<div>`
+   with `background: #fff` shows through the transparent corners. Give that
+   wrapper the page background (or none).
+2. **Host CSS styling iframes** — e.g. a global `iframe { background: … }`
+   rule. The inline `background:transparent` in the snippet wins unless the
+   rule uses `!important`.
+3. **Color-scheme mismatch** — if the host page declares `color-scheme: dark`
+   (or resolves dark via `light dark`), browsers composite the iframe on an
+   opaque white canvas. The `color-scheme:light` inline style on the iframe
+   plus the embed document's own `color-scheme: light` keep the two matched.

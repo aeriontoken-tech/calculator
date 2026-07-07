@@ -739,6 +739,13 @@ a:hover {
    background, texture, or outer spacing. The card goes opaque because the
    translucent glass tint has nothing meaningful to blur over a transparent
    document, and it must stay readable on any host-page background. */
+:root:has(.embed-shell) {
+  /* Explicit light scheme: a color-scheme mismatch between the host page and
+     the iframe document makes browsers composite the iframe on an opaque
+     white canvas, killing transparency. */
+  color-scheme: light;
+  background: transparent;
+}
 body:has(.embed-shell) {
   background: transparent;
 }
