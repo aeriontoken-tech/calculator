@@ -6,6 +6,14 @@ Two sections are exposed as standalone, chrome-free embed routes:
 | ---------------- | ---------------------------------------------- |
 | ARN investment   | `https://calc.aeriontoken.io/embed/investment` |
 | Access & node    | `https://calc.aeriontoken.io/embed/access`     |
+| Dashboard (both) | `https://calc.aeriontoken.io/embed/dashboard`  |
+
+`/embed/dashboard` stacks **both** sections in one iframe — ARN Position on
+top, Access & Mining Boost below — sharing the Operator Console skin so they
+match the Aerion dashboard chrome. It follows the host theme exactly like
+`/embed/access` (see "Dark / light theme" below): pass `?theme=dark` on first
+paint and post `aerion-embed-theme` messages to switch live. It reports its own
+height with `id: 'dashboard'`.
 
 Each embed page measures its own rendered height and reports it to the host
 page with `postMessage` (`{ type: 'aerion-embed-height', id, height }`), so
@@ -60,10 +68,11 @@ Notes:
 - To embed from a different deployment (e.g. a preview URL), change the
   `src` and the `e.origin` check together.
 
-## Dark / light theme — `/embed/access` only
+## Dark / light theme — `/embed/access` and `/embed/dashboard`
 
-The access embed follows the host's theme (Operator Console tokens, Brand
-Brief v1.0). **`/embed/investment` is not themed**: it always renders the
+Both the access embed and the combined dashboard embed follow the host's theme
+(Operator Console tokens, Brand Brief v1.0). **`/embed/investment` is not
+themed**: it always renders the
 studio palette, ignores `?theme=` and theme messages, and is meant for the
 light landing page.
 
